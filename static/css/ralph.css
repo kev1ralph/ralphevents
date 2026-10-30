@@ -1,0 +1,162 @@
+/* =========================================
+   GLOBAL & BASE STYLES
+   ========================================= */
+body {
+    background-color: #ffffff !important; 
+    color: #333333; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* =========================================
+   NAVBAR
+   ========================================= */
+.navbar {
+    background-color: #ffffff !important; 
+    border-bottom: 1px solid #eaeaea;
+}
+
+.navbar-brand {
+    color: #111111 !important; 
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: #333333 !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #00a86b !important;
+}
+
+/* =========================================
+   HERO SECTION
+   ========================================= */
+.hero-section {
+    /* Gradient overlay over a vibrant event image */
+    background: linear-gradient(90deg, rgba(9, 25, 18, 0.95) 0%, rgba(9, 25, 18, 0.8) 50%, rgba(9, 25, 18, 0.4) 100%), 
+                url('/static/images/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    min-height: 550px;
+    border-bottom: 5px solid #00a86b;
+}
+
+/* =========================================
+   EVENT CARDS
+   ========================================= */
+.event-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+}
+
+/* Floating Date Badge on Cards */
+.date-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: #00a86b;
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+    padding: 6px 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.date-badge .month {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.date-badge .day {
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+/* =========================================
+   FORM STYLING (Kept from previous step)
+   ========================================= */
+input[type="text"], 
+input[type="password"], 
+input[type="email"], 
+input[type="number"],
+input[type="datetime-local"],
+select, 
+textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #00a86b;
+    box-shadow: 0 0 0 0.25rem rgba(0, 168, 107, 0.15);
+    outline: none;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+input[type="file"] {
+    padding: 10px;
+    background: #f8f9fa;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.helptext, .form-text {
+    font-size: 0.85rem;
+    color: #666;
+    display: block;
+    margin-bottom: 15px;
+}
+
+ul.errorlist {
+    color: #dc3545;
+    list-style-type: none;
+    padding-left: 0;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+/* Buttons */
+.btn-success {
+    background-color: #00a86b !important;
+    border-color: #00a86b !important;
+}
+.btn-success:hover {
+    background-color: #007a4d !important;
+    border-color: #007a4d !important;
+}
+.btn-outline-success {
+    color: #00a86b !important;
+    border-color: #00a86b !important;
+}
+.btn-outline-success:hover {
+    background-color: #00a86b !important;
+    color: white !important;
+}

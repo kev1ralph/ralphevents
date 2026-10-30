@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}RALPHEvents — Home{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<div class="hero-section text-white d-flex align-items-center mb-5">
+    <div class="container position-relative z-1 py-5">
+        <h6 class="text-uppercase tracking-wider mb-3 fw-bold" style="letter-spacing: 4px; color: #4ade80;">Plan • Discover • Experience</h6>
+        <h1 class="display-3 fw-bolder mb-4" style="line-height: 1.1;">Your Next Great Event<br><span style="color: #4ade80;">Starts Here</span></h1>
+        <p class="lead mb-5" style="max-width: 600px; color: #e2e8f0;">RALPHEvents is your all-in-one platform for discovering, organizing and managing unforgettable events. From concerts and conferences to workshops and private gatherings — we make it simple.</p>
+        
+        <!-- Search Bar -->
+        <form method="get" action="{% url 'event_list' %}" class="d-flex bg-white p-2 rounded-pill shadow-lg align-items-center" style="max-width: 650px;">
+            <i class="bi bi-search fs-5 text-muted ms-3"></i>
+            <input type="text" name="q" class="form-control border-0 bg-transparent shadow-none ms-2 fs-6" placeholder="Search events, categories, or locations...">
+            <button class="btn btn-success rounded-pill px-5 py-2 fw-bold" type="submit" style="background-color: #00a86b; white-space: nowrap;">Search</button>
+        </form>
+    </div>
+</div>
+
+<!-- FEATURES ROW -->
+<div class="container mb-5 pb-4">
+    <div class="row text-center justify-content-center g-4">
+        <div class="col-md-3 border-end border-light">
+            <div class="p-3">
+                <i class="bi bi-calendar-check fs-1" style="color: #00a86b;"></i>
+                <h5 class="fw-bold mt-3">Discover Events</h5>
+                <p class="text-muted small mb-0">Find exciting events near you or around the world.</p>
+            </div>
+        </div>
+        <div class="col-md-3 border-end border-light">
+            <div class="p-3">
+                <i class="bi bi-ticket-perforated fs-1" style="color: #00a86b;"></i>
+                <h5 class="fw-bold mt-3">Buy Tickets</h5>
+                <p class="text-muted small mb-0">Get your tickets quickly and securely.</p>
+            </div>
+        </div>
+        <div class="col-md-3 border-end border-light">
+            <div class="p-3">
+                <i class="bi bi-people fs-1" style="color: #00a86b;"></i>
+                <h5 class="fw-bold mt-3">Host Your Own Event</h5>
+                <p class="text-muted small mb-0">Create and manage your event with ease.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3">
+                <i class="bi bi-shield-check fs-1" style="color: #00a86b;"></i>
+                <h5 class="fw-bold mt-3">Safe & Secure</h5>
+                <p class="text-muted small mb-0">Your information and payments are always protected.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- UPCOMING EVENTS GRID -->
+<div class="container mb-5 bg-light p-5 rounded-4">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <h2 class="fw-bolder mb-0">Upcoming Events</h2>
+        <a href="{% url 'event_list' %}" class="text-decoration-none fw-bold" style="color: #00a86b;">View All Events &rarr;</a>
+    </div>
+
+    <div class="row g-4">
+        {% for event in events %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm event-card bg-white">
+                <!-- Image with overlay for date badge -->
+                <div class="position-relative">
+                    {% if event.image %}
+                        <img src="{{ event.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <!-- Placeholder image if event has no image -->
+                        <img src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    
+                    <!-- Date Badge -->
+                    <div class="date-badge">
+                        <span class="month">{{ event.start_date|date:"M" }}</span>
+                        <span class="day">{{ event.start_date|date:"d" }}</span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 d-flex flex-column">
+                    <span class="text-uppercase small fw-bold" style="color: #00a86b;">{{ event.category.name|default:"EVENT" }}</span>
+                    <h5 class="card-title fw-bold mt-1 mb-3">{{ event.title }}</h5>
+                    
+                    <p class="text-muted small mb-1"><i class="bi bi-geo-alt-fill me-2"></i>{{ event.venue }}</p>
+                    <p class="text-muted small mb-4"><i class="bi bi-clock-fill me-2"></i>{{ event.start_date|date:"g:i A" }} — {{ event.end_date|date:"g:i A" }}</p>
+                    
+                    <div class="mt-auto">
+                        <a href="{% url 'event_detail' event.slug %}" class="btn btn-outline-success w-100 rounded-pill fw-bold">Get Tickets</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-calendar-x display-1 text-muted mb-3 d-block"></i>
+            <h4 class="text-muted">No events yet. Check back soon!</h4>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

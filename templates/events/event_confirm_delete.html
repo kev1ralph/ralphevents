@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Delete "{{ event.title }}"?</h2>
+<p>This cannot be undone.</p>
+<form method="post">
+  {% csrf_token %}
+  <button class="btn btn-danger">Yes, delete</button>
+  <a href="{% url 'event_detail' event.slug %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="card mt-5 shadow-sm border-danger">
+  <div class="card-body text-center">
+    <h2 class="text-danger">Delete Event?</h2>
+    <p>Are you sure you want to delete "<strong>{{ event.title }}</strong>"? This cannot be undone.</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Yes, Delete</button>
+      <a href="{% url 'my_events' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

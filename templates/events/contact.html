@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-dark text-white text-center py-3">
+                    <h2 class="mb-0 fw-bold">Get in Touch</h2>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <p class="text-muted">Have a question about our services, inventory, or need help planning your next big event? Drop us a message!</p>
+                    </div>
+                    
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Full Name</label>
+                                <input type="text" class="form-control" placeholder="John Doe">
+                            </div>
+                            <div class="col-md-6 mt-3 mt-md-0">
+                                <label class="form-label fw-bold">Email Address</label>
+                                <input type="email" class="form-control" placeholder="john@example.com">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Subject</label>
+                            <input type="text" class="form-control" placeholder="Event Inquiry">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Message</label>
+                            <textarea class="form-control" rows="5" placeholder="Tell us about your event..."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-success w-100 py-2 fw-bold" onclick="alert('Thank you! Your message has been sent. (Note: This is a demo form).')">Send Message</button>
+                    </form>
+
+                    <hr class="my-5">
+
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <h5 class="fw-bold">📍 Location</h5>
+                            <p class="text-muted small">Kampala, Uganda<br>Plot 42, Event Avenue</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h5 class="fw-bold">📞 Phone</h5>
+                            <p class="text-muted small">+256 700 123 456<br>Mon-Fri, 9am - 5pm</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h5 class="fw-bold">✉️ Email</h5>
+                            <p class="text-muted small">hello@ralphevents.com<br>support@ralphevents.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

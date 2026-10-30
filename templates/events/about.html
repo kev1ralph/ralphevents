@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-success text-white py-5 mb-5" style="background: linear-gradient(135deg, #00a86b, #007a4d) !important;">
+    <div class="container text-center py-4">
+        <h1 class="display-4 fw-bold">About RALPHEvents</h1>
+        <p class="lead">Crafting unforgettable experiences, one event at a time.</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Mission Statement -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8 text-center">
+            <h2 class="fw-bold mb-3">Our Story</h2>
+            <p class="text-muted fs-5">
+                Founded with a passion for perfection, RALPHEvents has grown into a premier event planning and management company. 
+                We specialize in transforming empty spaces into breathtaking venues. Whether it's a grand wedding, a corporate gala, 
+                or an intimate private party, we provide the vision, the furniture, the décor, and the seamless execution to make it unforgettable.
+            </p>
+        </div>
+    </div>
+
+    <!-- Image Gallery (12 Images) -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Our Recent Work</h2>
+        <p class="text-muted">A glimpse into the events we've brought to life.</p>
+    </div>
+
+    <div class="row g-3">
+        <!-- Image 1 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/1.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 1">
+        </div>
+        <!-- Image 2 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/2.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 2">
+        </div>
+        <!-- Image 3 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/3.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 3">
+        </div>
+        <!-- Image 4 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/4.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 4">
+        </div>
+        <!-- Image 5 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/5.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 5">
+        </div>
+        <!-- Image 6 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/6.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 6">
+        </div>
+        <!-- Image 7 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/7.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 7">
+        </div>
+        <!-- Image 8 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/8.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 8">
+        </div>
+        <!-- Image 9 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/9.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 9">
+        </div>
+        <!-- Image 10 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/10.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 10">
+        </div>
+        <!-- Image 11 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/11.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 11">
+        </div>
+        <!-- Image 12 -->
+        <div class="col-md-3 col-6">
+            <img src="/static/images/gallery/12.jpg" class="img-fluid rounded shadow-sm gallery-img" alt="Event 12">
+        </div>
+    </div>
+</div>
+
+<style>
+    .gallery-img {
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .gallery-img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+        z-index: 2;
+        position: relative;
+    }
+</style>
+{% endblock %}

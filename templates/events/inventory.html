@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Shop Inventory{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Shop Inventory</h2>
+        <a href="{% url 'add_inventory_item' %}" class="btn btn-success rounded-pill px-4">+ Add New Item</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Category</th>
+                        <th>Stock Qty</th>
+                        <th>Price / Day</th>
+                        <th>Total Sales</th>
+                        <th>Date Added</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+    <tr>
+        <td class="fw-bold">{{ item.name }}</td>
+        <td><span class="badge bg-success">{{ item.get_category_display }}</span></td>
+        
+        <!-- Make it red if stock is low (under 5) -->
+        <td class="{% if item.quantity < 5 %}text-danger fw-bold{% endif %}">
+            {{ item.quantity }}
+        </td>
+        
+        <td>${{ item.price_per_day }}</td>
+        <td class="fw-bold text-success">${{ item.total_sales }}</td>
+        <td>{{ item.added_at|date:"M d, Y" }}</td>
+        <td class="text-center">
+            <a href="{% url 'record_sale' item.id %}" class="btn btn-sm btn-outline-success">Record Sale</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7" class="text-center py-4 text-muted">No inventory items found. Add your first item!</td>
+    </tr>
+    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,573 @@
+{% extends 'base.html' %}
+{% block title %}3D Venue Planner{% endblock %}
+
+{% block content %}
+<style>
+    .planner-container {
+        display: flex;
+        height: 75vh;
+        background-color: #1a1a1a;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .sidebar {
+        width: 300px;
+        background-color: #2a2a2a;
+        color: white;
+        padding: 20px;
+        overflow-y: auto;
+        border-right: 2px solid #00a86b;
+    }
+    .canvas-area {
+        flex-grow: 1;
+        position: relative;
+        background-color: #000;
+        cursor: crosshair;
+    }
+    .canvas-area.walk-mode {
+        cursor: none;
+    }
+    .item-btn {
+        width: 100%;
+        margin-bottom: 10px;
+        text-align: left;
+        background-color: #333;
+        color: white;
+        border: 1px solid #555;
+        transition: all 0.2s;
+    }
+    .item-btn:hover {
+        background-color: #00a86b;
+        border-color: #00a86b;
+        color: white;
+    }
+    .env-btn {
+        width: 48%;
+        margin-bottom: 15px;
+    }
+    .delete-btn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+    }
+    .delete-btn:hover {
+        background-color: #a71d2a;
+    }
+    .crosshair {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 10px;
+        height: 10px;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        pointer-events: none;
+        z-index: 10;
+    }
+    .walk-mode .crosshair {
+        display: block;
+    }
+    
+    /* New Selection Panel Styles */
+    #selection-controls {
+        display: none;
+        background-color: #3a3a3a;
+        border: 1px solid #00a86b;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container-fluid mt-4 mb-5">
+    <h2 class="fw-bold mb-4 text-center">3D Venue Designer</h2>
+    
+    <div class="planner-container">
+        <!-- Sidebar Controls -->
+        <div class="sidebar">
+           <!-- Selection Menu (Hidden by default) -->
+<div id="selection-controls" style="display: none; background-color: #3a3a3a; border: 1px solid #00a86b; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+    <h5 class="text-warning mb-3">Item Selected</h5>
+    <div class="d-flex justify-content-between mb-2">
+        <button class="btn btn-secondary w-50 me-2" onclick="rotateItem(1)">Rotate R</button>
+        <button class="btn btn-secondary w-50" onclick="rotateItem(-1)">Rotate L</button>
+    </div>
+    <button class="btn delete-btn w-100" onclick="deleteItem()">Delete Item</button>
+    <button class="btn btn-outline-light w-100 mt-2 btn-sm" onclick="deselectItem()">Deselect</button>
+</div>
+
+            <h4 class="mb-3 text-success">View Mode</h4>
+            <button id="view-toggle-btn" class="btn btn-warning w-100 mb-4" onclick="toggleViewMode()">Enter Walkthrough (POV)</button>
+
+            <h4 class="mb-3 text-success">Environment</h4>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-light env-btn" onclick="setEnvironment('indoor')">Indoor</button>
+                <button class="btn btn-outline-light env-btn" onclick="setEnvironment('outdoor')">Outdoor</button>
+            </div>
+            
+            <hr style="border-color: #555;">
+            
+            <h4 class="mb-3 text-success">Add Items</h4>
+            <button class="btn item-btn" onclick="addItem('table6')">+ 6 Seater Round Table</button>
+            <button class="btn item-btn" onclick="addItem('table8')">+ 8 Seater Rectangular Table</button>
+            <button class="btn item-btn" onclick="addItem('tent50')">+ 50 Seater Tent</button>
+            <button class="btn item-btn" onclick="addItem('tent100')">+ 100 Seater Tent</button>
+            <button class="btn item-btn" onclick="addItem('photobooth')">+ Photo Booth</button>
+            <button class="btn item-btn" onclick="addItem('caketable')">+ Cake Table</button>
+            <button class="btn item-btn" onclick="addItem('balloons')">+ Balloons</button>
+            <button class="btn item-btn" onclick="addItem('stage')">+ Main Stage</button>
+            
+            <hr style="border-color: #555;">
+            <button class="btn delete-btn w-100 mt-2" onclick="clearAll()">Clear Entire Venue</button>
+        </div>
+
+        <!-- 3D Canvas -->
+        <div class="canvas-area" id="3d-container">
+            <div class="crosshair"></div>
+            <div id="instructions" style="position: absolute; bottom: 10px; left: 10px; color: rgba(255,255,255,0.7); font-size: 12px; pointer-events: none; z-index: 10;">
+                Left-click to select/drag items. Right-click and drag to rotate the room.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Local Three.js -->
+<script src="/static/js/three.min.js"></script>
+
+<script>
+    // ==========================================
+    // 1. SCENE SETUP
+    // ==========================================
+    const container = document.getElementById('3d-container');
+    const instructions = document.getElementById('instructions');
+    const selectionControls = document.getElementById('selection-controls');
+    const scene = new THREE.Scene();
+    
+    // Cameras
+    const planCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    planCamera.position.set(25, 18, 35); 
+    planCamera.lookAt(0, 0, 0);
+
+    const walkCamera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+    walkCamera.position.set(0, 1.7, 0); 
+
+    let activeCamera = planCamera;
+    let isWalkMode = false;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // ==========================================
+    // 2. LIGHTING & ENVIRONMENT
+    // ==========================================
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(20, 40, 20);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
+    scene.add(dirLight);
+
+    // Floor with Grid
+    const floorGeo = new THREE.PlaneGeometry(60, 60);
+    const floorMat = new THREE.MeshLambertMaterial({ color: 0xeeeeee });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const gridHelper = new THREE.GridHelper(60, 60, 0x000000, 0x444444);
+    gridHelper.material.opacity = 0.2;
+    gridHelper.material.transparent = true;
+    scene.add(gridHelper);
+
+    // Walls & Ceiling
+    const wallMat = new THREE.MeshLambertMaterial({ color: 0xfdfbf7, side: THREE.DoubleSide }); 
+    const wallGeo = new THREE.PlaneGeometry(60, 20);
+    
+    const backWall = new THREE.Mesh(wallGeo, wallMat);
+    backWall.position.set(0, 10, -30);
+    backWall.receiveShadow = true;
+    scene.add(backWall);
+
+    const leftWall = new THREE.Mesh(wallGeo, wallMat);
+    leftWall.rotation.y = Math.PI / 2;
+    leftWall.position.set(-30, 10, 0);
+    leftWall.receiveShadow = true;
+    scene.add(leftWall);
+
+    const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), wallMat);
+    ceiling.rotation.x = Math.PI / 2;
+    ceiling.position.y = 20;
+    scene.add(ceiling);
+
+    function setEnvironment(type) {
+        if (type === 'indoor') {
+            scene.background = new THREE.Color(0x111111); 
+            floor.material.color.setHex(0x8b5a2b); 
+            gridHelper.visible = true;
+            
+            backWall.visible = true;
+            leftWall.visible = true;
+            ceiling.visible = true;
+            
+            ambientLight.intensity = 0.8; 
+            dirLight.intensity = 0.3; 
+            
+            if(!scene.getObjectByName("indoorLight1")) {
+                const light1 = new THREE.PointLight(0xffddaa, 1.5, 100);
+                light1.position.set(0, 15, 0);
+                light1.name = "indoorLight1";
+                scene.add(light1);
+                
+                const light2 = new THREE.PointLight(0xffddaa, 1.5, 100);
+                light2.position.set(-15, 15, -15);
+                light2.name = "indoorLight2";
+                scene.add(light2);
+            }
+        } else {
+            scene.background = new THREE.Color(0x87CEEB); 
+            floor.material.color.setHex(0x7cfc00); 
+            gridHelper.visible = false;
+            
+            backWall.visible = false;
+            leftWall.visible = false;
+            ceiling.visible = false;
+            
+            ambientLight.intensity = 0.6; 
+            dirLight.intensity = 1.0;
+            
+            const l1 = scene.getObjectByName("indoorLight1");
+            const l2 = scene.getObjectByName("indoorLight2");
+            if(l1) scene.remove(l1);
+            if(l2) scene.remove(l2);
+        }
+    }
+    setEnvironment('outdoor'); 
+
+    // ==========================================
+    // 3. ITEM GENERATION
+    // ==========================================
+    const itemsGroup = new THREE.Group();
+    scene.add(itemsGroup);
+
+    const woodMat = new THREE.MeshLambertMaterial({ color: 0x8b5a2b });
+    const clothMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const chairMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
+    const tentMat = new THREE.MeshLambertMaterial({ color: 0xdddddd, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+    const greenMat = new THREE.MeshLambertMaterial({ color: 0x00a86b });
+    const balloonMat = new THREE.MeshLambertMaterial({ color: 0xff3366 });
+    const cakeMat = new THREE.MeshLambertMaterial({ color: 0xfff0f5 });
+
+    // (Creation functions remain the same)
+    function createTable6() {
+        const group = new THREE.Group();
+        const top = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 0.2, 32), clothMat);
+        top.position.y = 2.5; top.castShadow = true; group.add(top);
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 2.5, 8), woodMat);
+        leg.position.y = 1.25; group.add(leg);
+        for(let i=0; i<6; i++){
+            const chair = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.8), chairMat);
+            const angle = (i * Math.PI) / 3;
+            chair.position.set(Math.cos(angle)*3, 0.6, Math.sin(angle)*3);
+            chair.rotation.y = -angle; chair.castShadow = true; group.add(chair);
+        }
+        return group;
+    }
+    function createTable8() {
+        const group = new THREE.Group();
+        const top = new THREE.Mesh(new THREE.BoxGeometry(5, 0.2, 2.5), clothMat);
+        top.position.y = 2.5; top.castShadow = true; group.add(top);
+        for(let x=-2; x<=2; x+=4){ for(let z=-1; z<=1; z+=2){
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 2.5, 8), woodMat);
+            leg.position.set(x, 1.25, z); group.add(leg);
+        }}
+        for(let i=0; i<4; i++){
+            const c1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.8), chairMat);
+            c1.position.set(-1.8 + i*1.2, 0.6, 1.8); c1.castShadow = true; group.add(c1);
+            const c2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.8), chairMat);
+            c2.position.set(-1.8 + i*1.2, 0.6, -1.8); c2.castShadow = true; group.add(c2);
+        }
+        return group;
+    }
+    function createTent(size) {
+        const group = new THREE.Group();
+        const w = size === 50 ? 10 : 15;
+        const base = new THREE.Mesh(new THREE.BoxGeometry(w, 0.1, w), new THREE.MeshLambertMaterial({color: 0xcccccc}));
+        group.add(base);
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.75, 5, 4), tentMat);
+        roof.position.y = 4; roof.rotation.y = Math.PI / 4; roof.castShadow = true; group.add(roof);
+        return group;
+    }
+    function createPhotobooth() {
+        const group = new THREE.Group();
+        const box = new THREE.Mesh(new THREE.BoxGeometry(3, 6, 3), new THREE.MeshLambertMaterial({color: 0x222222}));
+        box.position.y = 3; box.castShadow = true; group.add(box);
+        const curtain = new THREE.Mesh(new THREE.PlaneGeometry(2, 4), new THREE.MeshLambertMaterial({color: 0xcc0000}));
+        curtain.position.set(0, 2.5, 1.51); group.add(curtain);
+        return group;
+    }
+    function createCakeTable() {
+        const group = new THREE.Group();
+        const table = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 2, 16), woodMat);
+        table.position.y = 1; table.castShadow = true; group.add(table);
+        const cake = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 1, 16), cakeMat);
+        cake.position.y = 2.5; cake.castShadow = true; group.add(cake);
+        return group;
+    }
+    function createBalloons() {
+        const group = new THREE.Group();
+        for(let i=0; i<5; i++){
+            const b = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), balloonMat);
+            b.position.set((Math.random()-0.5)*2, 3 + Math.random(), (Math.random()-0.5)*2);
+            b.castShadow = true; group.add(b);
+        }
+        return group;
+    }
+    function createStage() {
+        const group = new THREE.Group();
+        const stage = new THREE.Mesh(new THREE.BoxGeometry(12, 2, 6), greenMat);
+        stage.position.y = 1; stage.castShadow = true; stage.receiveShadow = true; group.add(stage);
+        return group;
+    }
+
+    function addItem(type) {
+        let newItem;
+        if (type === 'table6') newItem = createTable6();
+        if (type === 'table8') newItem = createTable8();
+        if (type === 'tent50') newItem = createTent(50);
+        if (type === 'tent100') newItem = createTent(100);
+        if (type === 'photobooth') newItem = createPhotobooth();
+        if (type === 'caketable') newItem = createCakeTable();
+        if (type === 'balloons') newItem = createBalloons();
+        if (type === 'stage') newItem = createStage();
+
+        if (newItem) {
+            newItem.position.set((Math.random()-0.5)*15, 0, (Math.random()-0.5)*15);
+            itemsGroup.add(newItem);
+        }
+    }
+    function clearAll() {
+        while(itemsGroup.children.length > 0){ itemsGroup.remove(itemsGroup.children[0]); }
+        deselectItem();
+    }
+
+    // ==========================================
+    // 4. SELECTION & MODIFICATION LOGIC
+    // ==========================================
+    let selectedObject = null;
+    let selectionBox = null;
+
+    function selectItem(obj) {
+        deselectItem(); // Clear previous selection
+        selectedObject = obj;
+        
+        // Show the sidebar menu
+        selectionControls.style.display = 'block';
+
+        // Create a red bounding box to show it's selected
+        const boxHelper = new THREE.BoxHelper(selectedObject, 0xff0000);
+        selectionBox = boxHelper;
+        scene.add(selectionBox);
+    }
+
+    function deselectItem() {
+        selectedObject = null;
+        selectionControls.style.display = 'none';
+        if (selectionBox) {
+            scene.remove(selectionBox);
+            selectionBox = null;
+        }
+    }
+
+    function rotateItem(direction) {
+        if (!selectedObject) return;
+        // Rotate 45 degrees (Math.PI / 4) times direction (1 for right, -1 for left)
+        selectedObject.rotation.y += (Math.PI / 4) * direction;
+        // Update the red box to match the new rotation
+        if (selectionBox) selectionBox.update();
+    }
+
+    function deleteItem() {
+        if (!selectedObject) return;
+        itemsGroup.remove(selectedObject);
+        deselectItem();
+    }
+
+    // ==========================================
+    // 5. TOGGLE WALKTHROUGH MODE
+    // ==========================================
+    function toggleViewMode() {
+        isWalkMode = !isWalkMode;
+        const btn = document.getElementById('view-toggle-btn');
+        
+        // Deselect if switching to walk mode
+        deselectItem();
+
+        if (isWalkMode) {
+            activeCamera = walkCamera;
+            walkCamera.position.set(0, 1.7, 15); 
+            walkCamera.rotation.set(0, 0, 0);
+            container.classList.add('walk-mode');
+            btn.innerHTML = "Exit Walkthrough";
+            btn.classList.replace('btn-warning', 'btn-danger');
+            instructions.innerHTML = "Use W, A, S, D to move. Click and drag to look around.";
+        } else {
+            activeCamera = planCamera;
+            container.classList.remove('walk-mode');
+            btn.innerHTML = "Enter Walkthrough (POV)";
+            btn.classList.replace('btn-danger', 'btn-warning');
+            instructions.innerHTML = "Left-click to select/drag items. Right-click and drag to rotate the room.";
+        }
+    }
+
+    // ==========================================
+    // 6. WALKTHROUGH MOVEMENT (WASD)
+    // ==========================================
+    const keys = { w: false, a: false, s: false, d: false };
+    document.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = true; });
+    document.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = false; });
+
+    function updateWalkMovement() {
+        if (!isWalkMode) return;
+        const speed = 0.3;
+        const direction = new THREE.Vector3();
+        walkCamera.getWorldDirection(direction);
+
+        if (keys.w) walkCamera.position.addScaledVector(direction, speed);
+        if (keys.s) walkCamera.position.addScaledVector(direction, -speed);
+        const right = new THREE.Vector3().crossVectors(walkCamera.up, direction).normalize();
+        if (keys.a) walkCamera.position.addScaledVector(right, speed);
+        if (keys.d) walkCamera.position.addScaledVector(right, -speed);
+        walkCamera.position.y = 1.7; 
+    }
+
+    // ==========================================
+    // 7. MOUSE CONTROLS
+    // ==========================================
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let isDragging = false;
+    let plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    
+    let prevMouseX = 0;
+    let prevMouseY = 0;
+    let isRightClickOrbit = false;
+    let cameraAngle = Math.PI / 4;
+    let cameraDistance = 45;
+
+    container.addEventListener('mousedown', (event) => {
+        if (event.button === 2) {
+            if(!isWalkMode) isRightClickOrbit = true;
+            return;
+        }
+        
+        if (isWalkMode) {
+            isDragging = true;
+            prevMouseX = event.clientX;
+            prevMouseY = event.clientY;
+        } else {
+    const rect = container.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, planCamera);
+    
+    // Check ALL descendants, not just direct children
+    const intersects = raycaster.intersectObjects(itemsGroup.children, true);
+    
+    if (intersects.length > 0) {
+        let obj = intersects[0].object;
+        // Traverse up the hierarchy to find the main Group
+        while (obj.parent && obj.parent !== itemsGroup) { 
+            obj = obj.parent; 
+        }
+        
+        // If we successfully found a top-level item
+        if (obj.parent === itemsGroup) {
+            if (selectedObject !== obj) {
+                selectItem(obj);
+            }
+            isDragging = true; 
+        }
+    } else {
+        // Clicked on empty floor
+        deselectItem();
+    }
+}
+    });
+
+    container.addEventListener('mousemove', (event) => {
+        if (isRightClickOrbit) {
+            let deltaX = event.clientX - prevMouseX;
+            cameraAngle -= deltaX * 0.01;
+            planCamera.position.x = cameraDistance * Math.sin(cameraAngle);
+            planCamera.position.z = cameraDistance * Math.cos(cameraAngle);
+            planCamera.lookAt(0, 0, 0);
+            prevMouseX = event.clientX;
+            return;
+        }
+
+        if (!isDragging) return;
+
+        if (isWalkMode) {
+            let deltaX = event.clientX - prevMouseX;
+            let deltaY = event.clientY - prevMouseY;
+            walkCamera.rotation.y -= deltaX * 0.005;
+            walkCamera.rotation.x -= deltaY * 0.005;
+            walkCamera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, walkCamera.rotation.x));
+            prevMouseX = event.clientX;
+            prevMouseY = event.clientY;
+        } else if (selectedObject) {
+            const rect = container.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, planCamera);
+            const intersectPoint = new THREE.Vector3();
+            raycaster.ray.intersectPlane(plane, intersectPoint);
+            if (intersectPoint) {
+                selectedObject.position.x = intersectPoint.x;
+                selectedObject.position.z = intersectPoint.z;
+                if (selectionBox) selectionBox.update(); // Move red box with object
+            }
+        }
+    });
+
+    container.addEventListener('mouseup', (event) => { 
+        isDragging = false; 
+        isRightClickOrbit = false;
+    });
+    
+    container.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // ==========================================
+    // 8. ANIMATION & RESIZE
+    // ==========================================
+    function animate() {
+        requestAnimationFrame(animate);
+        updateWalkMovement();
+        renderer.render(scene, activeCamera);
+    }
+
+    window.addEventListener('resize', () => {
+        planCamera.aspect = container.clientWidth / container.clientHeight;
+        planCamera.updateProjectionMatrix();
+        walkCamera.aspect = container.clientWidth / container.clientHeight;
+        walkCamera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    planCamera.position.x = cameraDistance * Math.sin(cameraAngle);
+    planCamera.position.z = cameraDistance * Math.cos(cameraAngle);
+    planCamera.lookAt(0, 0, 0);
+
+    animate();
+</script>
+{% endblock %}

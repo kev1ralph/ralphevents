@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{{ event.title }}</h1>
+<span class="badge bg-info">{{ event.category }}</span>
+
+<p class="mt-3">
+  <strong>📅</strong> {{ event.start_date|date:"M d, Y H:i" }}<br>
+  <strong>📍</strong> {{ event.venue }}<br>
+  <strong>🪑</strong> Seats left: {{ seats_left }} / {{ event.capacity }}
+</p>
+<p>{{ event.description }}</p>
+
+{% if is_organizer %}
+  <a href="{% url 'event_update' event.slug %}" class="btn btn-warning">Edit</a>
+  <a href="{% url 'event_delete' event.slug %}" class="btn btn-danger">Delete</a>
+{% endif %}
+
+<hr>
+{% if already_registered %}
+  <p class="text-success">✅ You are registered for this event.</p>
+{% else %}
+  <h3>RSVP</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-success">RSVP</button>
+  </form>
+{% endif %}
+{% endblock %}

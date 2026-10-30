@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Record Sale{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5 mb-5">
+  <div class="col-md-6">
+    <div class="card shadow-lg border-0">
+      <div class="card-header text-center py-3 bg-dark text-white">
+        <h3 class="mb-0 fw-bold">Record Sale</h3>
+      </div>
+      <div class="card-body p-4 text-center">
+        <h4 class="text-success fw-bold mb-3">{{ item.name }}</h4>
+        <p class="text-muted">Current Stock: <strong>{{ item.quantity }}</strong> units</p>
+        <p class="text-muted">Price per unit: <strong>${{ item.price_per_day }}</strong></p>
+        
+        <form method="post" class="mt-4 text-start">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-bold">How many units were sold?</label>
+            {{ form.quantity_sold }}
+            {% if form.quantity_sold.errors %}
+                <div class="text-danger small">{{ form.quantity_sold.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'inventory_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            <button type="submit" class="btn btn-success px-5 fw-bold">Confirm Sale</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
