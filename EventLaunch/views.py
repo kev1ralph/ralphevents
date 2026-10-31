@@ -21,7 +21,7 @@ def signup_view(request):
             # Save role + name
             user.first_name = form.cleaned_data['full_name']
             user.save()
-            profile = user.profile
+            profile, created = Profile.objects.get_or_create(user=user)
             profile.role = form.cleaned_data['role']
             profile.save()
             login(request, user)
