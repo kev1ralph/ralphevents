@@ -27,8 +27,8 @@ def signup_view(request):
                 defaults={'role': form.cleaned_data['role']}
             )
             if not created:
-            profile.role = form.cleaned_data['role']
-            profile.save()
+                profile.role = form.cleaned_data['role']
+                profile.save()
             
             login(request, user)
             messages.success(request, f"Welcome, {user.first_name}!")
