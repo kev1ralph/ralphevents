@@ -21,9 +21,13 @@ def signup_view(request):
             # Save role + name
             user.first_name = form.cleaned_data['full_name']
             user.save()
-            profile, created = Profile.objects.get_or_create(user=user)
-            profile.role = form.cleaned_data['role']
-            profile.save()
+
+            if hasattr(user, 'profile'):
+                user.profile.role = form.cleared_data['role']
+                user.profile.save()
+            else:
+                Profile.objects.create(user=user, role=form.cleared_data['role'])    
+
             login(request, user)
             messages.success(request, f"Welcome, {user.first_name}!")
             return redirect('home')
