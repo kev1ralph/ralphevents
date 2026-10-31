@@ -33,8 +33,8 @@
             {{ item.quantity }}
         </td>
         
-        <td>${{ item.price_per_day }}</td>
-        <td class="fw-bold text-success">${{ item.total_sales }}</td>
+        <td>UGX{{ item.price_per_day }}</td>
+        <td class="fw-bold text-success">UGX{{ item.total_sales }}</td>
         <td>{{ item.added_at|date:"M d, Y" }}</td>
         <td class="text-center">
             <a href="{% url 'record_sale' item.id %}" class="btn btn-sm btn-outline-success">Record Sale</a>
