@@ -14,6 +14,7 @@ urlpatterns = [
     path('about/', views.about_view, name='about'),
     path('contact/', views.contact_view, name='contact'),
     path('inventory/sale/<int:item_id>/', views.record_sale, name='record_sale'),
+    path('inventory/delete/<int:item_id>/', views.delete_inventory_item, name='delete_inventory_item'),
 
     # Home & events
     path('', views.home, name='home'),

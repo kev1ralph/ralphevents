@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Delete Item{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5 mb-5">
+  <div class="col-md-6">
+    <div class="card shadow-lg border-0 border-top border-danger border-4">
+      <div class="card-body p-5 text-center">
+        <h3 class="fw-bold text-danger mb-4">Delete Item?</h3>
+        <p class="fs-5">Are you sure you want to permanently delete <strong>"{{ item.name }}"</strong>?</p>
+        <p class="text-muted small">This action cannot be undone. Any associated sales records will also be deleted.</p>
+        
+        <form method="post" class="mt-4">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger px-5 py-2 fw-bold">Yes, Delete It</button>
+          <a href="{% url 'inventory_list' %}" class="btn btn-outline-secondary px-4 py-2 ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

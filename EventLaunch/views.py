@@ -440,3 +440,15 @@ def about_view(request):
 
 def contact_view(request):
         return render(request, 'events/contact.html')
+
+
+@login_required
+def delete_inventory_item(request, item_id):
+    item = get_object_or_404(InventoryItem, id=item_id)
+
+    if request.method == 'POST':
+        item.delete()
+        messages.success(request, f"'{item.name}' was deleted from inventory")
+        return redirect('inventory_list')
+
+    return render(request, 'events/delete_inventory.html', {'item': item})            
