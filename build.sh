@@ -7,3 +7,7 @@ pip install -r requirements.txt
 
 python manage.py collectstatic --no-input
 python manage.py migrate
+
+if [[ -n "${DJANGO_SUOERUSER_PASSWORD}" ]]; then
+    python manage.py createsuperuser --no-input || true
+fi    
