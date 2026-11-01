@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from django.urls import reverse.lazy
 import os
 import dj_database_url
  
@@ -111,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'EAT'
 
 USE_I18N = True
 
@@ -123,9 +124,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-LOGIN_URL           = 'login'
-LOGIN_REDIRECT_URL  = 'home'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL           = reverse_lazy('login')
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
