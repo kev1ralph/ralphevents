@@ -121,15 +121,19 @@ def event_create(request):
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES)
         if form.is_valid():
+
+            from .models import Profile
+            Profile.objects.get_or_create(user=request.user)
+
             event = form.save(commit=False)
             event.organizer = request.user
             event.save()
+
             messages.success(request, "Event created!")
             return redirect('event_detail', slug=event.slug)
     else:
         form = EventForm()
-    return render(request, 'events/event_form.html',
-                  {'form': form, 'action': 'Create'})
+    return render(request, 'events/event_form.html', {'form': form, 'action': 'Create'})
 
 
 @login_required
