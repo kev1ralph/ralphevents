@@ -15,6 +15,11 @@ urlpatterns = [
     path('contact/', views.contact_view, name='contact'),
     path('inventory/sale/<int:item_id>/', views.record_sale, name='record_sale'),
     path('inventory/delete/<int:item_id>/', views.delete_inventory_item, name='delete_inventory_item'),
+    path('staff/cleaning/', views.cleaning_dashboard, name='cleaning_dashboard'),
+    path('staff/cleaning/add/', views.add_cleaning_job, name='add_cleaning_job'),
+    path('staff/services/add/', views.add_laundry_service, name='add_laundry_service'),
+
+
 
     # Home & events
     path('', views.home, name='home'),
@@ -27,6 +32,6 @@ urlpatterns = [
     # Role-based
     path('my-events/', views.my_events, name='my_events'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
-    path('profile/', views.profile, name='profile'),
+    path('profile/', views.profile_view, name='profile'),
 ]
 

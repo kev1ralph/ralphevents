@@ -113,3 +113,18 @@ class RecordSaleForm(forms.ModelForm):
         widgets = {
             'quantity_sold': forms.NumberInput(attrs={'min': 1}),
         }
+
+
+
+
+
+
+from .models import CleaningJob, LaundryService
+
+class CleaningJobForm(forms.ModelForm):
+    class Meta:
+        model = CleaningJob
+        fields = ['staff_name', 'service', 'custom_description', 'custom_price', 'quantity', 'amount_paid']
+        widgets = {
+            'custom_description': forms.TextInput(attrs={'placeholder': 'e.g., Miscellaneous item'}),
+        }

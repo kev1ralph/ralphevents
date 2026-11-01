@@ -41,3 +41,22 @@ class InventoryItemAdmin(admin.ModelAdmin):
 class SaleAdmin(admin.ModelAdmin):
     list_display = ('item', 'quantity_sold', 'price_at_sale', 'date_sold')
     list_filter = ('date_sold', 'item')
+
+
+
+
+
+from .models import LaundryService, CleaningJob
+
+@admin.register(LaundryService)
+class LaundryServiceAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price')
+
+@admin.register(CleaningJob)
+class CleaningJobAdmin(admin.ModelAdmin):
+    list_display = ('staff_name', 'get_item', 'quantity', 'total_earned', 'amount_paid', 'balance_remaining', 'date_cleaned')
+    list_filter = ('staff_name', 'date_cleaned')
+    
+    def get_item(self, obj):
+        return obj.service.name if obj.service else obj.custom_description
+ 

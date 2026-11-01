@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% block title %}Shop Inventory{% endblock %}
 
 {% block content %}
@@ -33,8 +34,8 @@
             {{ item.quantity }}
         </td>
         
-        <td>UGX{{ item.price_per_day }}</td>
-        <td class="fw-bold text-success">UGX{{ item.total_sales }}</td>
+        <td>UGX{{ item.price_per_day|intcomma }}</td>
+        <td class="fw-bold text-success">UGX{{ item.total_sales|intcomma }}</td>
         <td class="text-center">
             <div class="d-flex justify-content-center gap-2">
                 <a href="{% url 'record_sale' item.id %}" class="btn btn-sm btn-outline-success">Record Sale</a>
